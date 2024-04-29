@@ -10,7 +10,8 @@
     
 1. Install:  
   [![][greasyfork_icon]][greasyfork_url]
-
+2. Add your auth and xsrf token (Send a message in chat with console open)
+   [consolescreenshot]: https://i.imgur.com/E84ofo5.png
 ----
 ## Security Concerns
 
