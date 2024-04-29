@@ -11,8 +11,8 @@
 1. Install:  
   [![][greasyfork_icon]][greasyfork_url]
 2. Add your auth and xsrf token into the script (Send a message in chat with console open)
-   [![][console_screenshot]]
-   [![][console_screenshot2]]
+   [][console_screenshot]]
+   [][console_screenshot2]]
 3. Refresh and have fun!
 4. If it doesnt work, refresh a few times
 ----
