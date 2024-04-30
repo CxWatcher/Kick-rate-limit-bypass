@@ -10,11 +10,8 @@
     
 1. Install:  
   [![][greasyfork_icon]][greasyfork_url]
-2. Add your auth and xsrf token into the script (Send a message in chat with console open)
-   [![][console_screenshot]]
-   [![][console_screenshot2]]
-3. Refresh and have fun!
-4. If it doesnt work, refresh a few times
+2. Refresh and have fun!
+3. If it doesnt work, refresh a few times
 ----
 ## Security Concerns
 
@@ -35,5 +32,3 @@ Using third-party scripts means you trust that the script’s developer hasn’t
   [greasyfork_url]: <https://greasyfork.org/en/scripts/493803-ratelimit-bypass> "Get from GreasyFork"
 
   [greasyfork_icon]: https://user-images.githubusercontent.com/3372598/166113712-1bc3d654-1342-4f1e-9845-21c3b21524b1.png
-  [console_screenshot]: https://i.imgur.com/E84ofo5.png
-  [console_screenshot2]: https://i.imgur.com/Iqfy2Mv.png
