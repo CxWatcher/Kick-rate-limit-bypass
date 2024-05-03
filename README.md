@@ -3,7 +3,6 @@
 1. First you need a Browser Extension for managing UserScripts (skip if you already have one):  
    * Chrome: [Violentmonkey][chrome_violentmonkey] or [Tampermonkey][chrome_tampermonkey]
    * Firefox: [Tampermonkey][firefox_tampermonkey], or [Violentmonkey][firefox_violentmonkey]  
-   * Opera: [Tampermonkey][opera_tampermonkey] or [Violentmonkey][opera_violentmonkey]
    * Brave: [Violentmonkey][chrome_violentmonkey] or [Tampermonkey][chrome_tampermonkey]
    * Edge: [Tampermonkey][edge_tampermonkey]  
    * Safari: ~[Tampermonkey][safari_tampermonkey]~ 
@@ -25,8 +24,6 @@ Using third-party scripts means you trust that the script’s developer hasn’t
   [firefox_violentmonkey]: https://addons.mozilla.org/firefox/addon/violentmonkey/
   [safari_tampermonkey]: https://github.com/victornpb/undiscord/issues/91#issuecomment-654514364
   [edge_tampermonkey]: https://microsoftedge.microsoft.com/addons/detail/tampermonkey/iikmkjmpaadaobahmlepeloendndfphd
-  [opera_tampermonkey]: https://addons.opera.com/extensions/details/tampermonkey-beta/
-  [opera_violentmonkey]: https://addons.opera.com/extensions/details/violent-monkey/
 
 <!-- Download links -->
   [greasyfork_url]: <https://greasyfork.org/en/scripts/493803-ratelimit-bypass> "Get from GreasyFork"
