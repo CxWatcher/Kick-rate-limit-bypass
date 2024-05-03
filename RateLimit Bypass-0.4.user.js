@@ -1,16 +1,16 @@
 // ==UserScript==
 // @name         RateLimit Bypass
 // @namespace    RishiSunak
-// @version      0.3
-// @description  Send custom requests when emote buttons are clicked
+// @version      0.4
+// @description  Bypass the kick ratelimit for emotes and messages
 // @author       You
 // @match        https://kick.com/*
 // @grant        none
 // ==/UserScript==
-
+ 
 (function() {
     'use strict';
-
+ 
     function getCookie(name) {
         const cookies = document.cookie.split('; ');
         for (const cookie of cookies) {
@@ -21,10 +21,10 @@
         }
         return null;
     }
-
+ 
       const authToken = getCookie('XSRF-TOKEN');
       const xsrfToken = decodeURIComponent(authToken);
-
+ 
 function sendRequest(chatId, emoteNumber, xsrfToken) {
     const headers = {
         'Accept': 'application/json, text/plain, */*',
@@ -35,13 +35,13 @@ function sendRequest(chatId, emoteNumber, xsrfToken) {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
         'Content-Type': 'application/json'
     };
-
+ 
     const url = 'https://kick.com/api/v2/messages/send/' + chatId;
     const jsonData = JSON.stringify({
         'content': `[emote:${emoteNumber}:RishiBypass]`,
         'type': 'message'
     });
-
+ 
     fetch(url, {
         method: 'POST',
         headers: headers,
@@ -50,7 +50,7 @@ function sendRequest(chatId, emoteNumber, xsrfToken) {
     }).then(response => {
         if (!response.ok) {
             if (response.status === 429) {
-                console.log('IP Limit Detected - Change IP to send more messages');
+                console.log('IP Limit Detected - Change IP to send more emotes');
                 createPopup('IP Limit Detected - Change IP to send more emotes');
             } else {
                 throw new Error('Failed to send request');
@@ -61,7 +61,7 @@ function sendRequest(chatId, emoteNumber, xsrfToken) {
         console.error('Error sending request:', error);
     });
 }
-
+ 
 function createPopup(message) {
     const popup = document.createElement('div');
     popup.textContent = message;
@@ -76,22 +76,61 @@ function createPopup(message) {
     popup.style.fontSize = '16px';
     popup.style.zIndex = '9999';
     popup.style.borderRadius = '5px';
-
+ 
     document.body.appendChild(popup);
-
-    // Remove the popup after 5 seconds
+ 
     setTimeout(() => {
         document.body.removeChild(popup);
     }, 5000);
 }
-
-    function attachEventListeners(chatId) {
+ 
+function sendMessage(chatId, message, xsrfToken) {
+    const headers = {
+        'Accept': 'application/json, text/plain, */*',
+        'Authorization': authToken,
+        'X-Xsrf-Token': xsrfToken,
+        'Origin': 'https://kick.com',
+        'Referer': 'https://kick.com/nickwhite',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Content-Type': 'application/json'
+    };
+ 
+    const url = 'https://kick.com/api/v2/messages/send/' + chatId;
+    const jsonData = JSON.stringify({
+        'content': message,
+        'type': 'message'
+    });
+ 
+    fetch(url, {
+        method: 'POST',
+        headers: headers,
+        credentials: 'include',
+        body: jsonData
+    }).then(response => {
+        if (!response.ok) {
+            if (response.status === 429) {
+                console.log('IP Limit Detected - Change IP to send more messages');
+                createPopup('IP Limit Detected - Change IP to send more messages');
+            } else {
+                throw new Error('Failed to send request');
+            }
+        }
+        console.log('Message sent successfully');
+    }).catch(error => {
+        console.error('Error sending message:', error);
+    });
+}
+ 
+let buttonAdded = false;
+ 
+function attachEventListeners(chatId) {
+    setTimeout(() => {
         const emoteItems = document.querySelectorAll('img[src*="/emotes/"]');
         emoteItems.forEach(emote => {
             const clone = emote.cloneNode(true);
             emote.parentNode.replaceChild(clone, emote);
         });
-
+ 
         const newEmoteItems = document.querySelectorAll('img[src*="/emotes/"]');
         newEmoteItems.forEach(emote => {
             emote.addEventListener('click', function(event) {
@@ -105,8 +144,37 @@ function createPopup(message) {
                 attachEventListeners(chatId);
             });
         });
-    }
-
+ 
+      if (!buttonAdded) {
+            setTimeout(() => {
+                const newButton = document.createElement('div');
+                newButton.setAttribute('data-v-5c8c79cb', '');
+                newButton.setAttribute('data-v-b51a7b6d', '');
+                newButton.classList.add('quick-emote-item');
+                newButton.innerHTML = `<div data-v-5c8c79cb="" class="relative">
+                                           <div data-v-5c8c79cb="" class="flex items-center justify-center text-center align-middle h-4 w-4">
+                                               <img src="https://i.imgur.com/7caVoug.png" class="w-full object-contain">
+                                           </div>
+                                       </div>`;
+                document.querySelector('.quick-emotes-holder').appendChild(newButton);
+                newButton.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    const messageBox = document.getElementById('message-input');
+                    const messageContent = messageBox.textContent.trim();
+                    if (messageContent !== '') {
+                        sendMessage(chatId, messageContent, xsrfToken);
+                    } else {
+                        createPopup('Type a message in the text box before clicking this');
+                    }
+                });
+ 
+                buttonAdded = true;
+            }, 1000);
+        }
+    }, 3000);
+}
+ 
     setTimeout(function() {
         fetch('https://kick.com/api/v2/channels/' + window.location.pathname.split('/').pop(), {
             method: 'GET',
@@ -122,21 +190,21 @@ function createPopup(message) {
                 throw new Error('Chat ID not found in response');
             }
             console.log('Chat ID:', chatId);
-
+ 
             attachEventListeners(chatId);
         }).catch(error => {
             console.error('Error:', error);
         });
-    }, 3000); 
-
-
+    }, 3000);
+ 
+ 
 function hideRateLimitMessage() {
     const toastHolder = document.querySelector('.toast-holder');
     if (toastHolder) {
         toastHolder.style.display = 'none';
     }
 }
-
+ 
 function attachHideRateLimitListeners() {
     const observerTarget = document.querySelector('body');
     const observer = new MutationObserver(mutationsList => {
@@ -152,12 +220,12 @@ function attachHideRateLimitListeners() {
             }
         });
     });
-
+ 
     const observerConfig = { childList: true, subtree: true };
     observer.observe(observerTarget, observerConfig);
 }
-
-
+ 
+ 
 hideRateLimitMessage();
 attachHideRateLimitListeners();
 })();
