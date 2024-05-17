@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         RateLimit Bypass
 // @namespace    RishiSunak
-// @version      0.5
+// @version      0.6
 // @description  Send custom requests when emote buttons are clicked
 // @author       You
 // @match        https://kick.com/*
@@ -146,7 +146,11 @@ function attachEventListeners(chatId) {
                 console.log('SRC:', event.target.src);
                 const emoteNumber = event.target.src.match(/\/emotes\/(\d+)\/fullsize/)[1];
                 console.log('Emote Number:', emoteNumber);
-                sendRequest(chatId, emoteNumber, xsrfToken);
+                if (typeof currentChatEntry !== 'undefined' && currentChatEntry !== null && currentChatEntry !== '') {
+                    sendReply(chatId, emoteNumber, xsrfToken);
+                } else {
+                    sendRequest(chatId, emoteNumber, xsrfToken);
+                }
                 attachEventListeners(chatId);
             });
         });
@@ -190,10 +194,14 @@ newButton.addEventListener('click', function(event) {
     event.stopPropagation();
     const messageBox = document.getElementById('message-input');
     const messageContent = messageBox.textContent.trim();
-    if (messageContent !== '') {
-        sendMessage(chatId, messageContent, xsrfToken);
+    if (typeof currentChatEntry !== 'undefined' && currentChatEntry !== null && currentChatEntry !== '') {
+        sendReplyMessage(chatId, messageContent, xsrfToken);
     } else {
-        createPopup('Type a message in the text box before clicking this');
+        if (messageContent !== '') {
+            sendMessage(chatId, messageContent, xsrfToken);
+        } else {
+            createPopup('Type a message in the text box before clicking this');
+        }
     }
 });
 
@@ -404,7 +412,16 @@ startButton.addEventListener('click', function() {
                 if (!isNaN(messageCount) && messageCount > 0) {
                     let messagesSent = 0;
                     const intervalID = setInterval(function() {
-                        sendMessage(chatId, message, xsrfToken);
+                        if (replyModeCheckbox.checked) {
+                            if (typeof currentChatEntry !== 'undefined' && currentChatEntry !== null && currentChatEntry !== '') {
+                                sendReplyMessage(chatId, message, xsrfToken);
+                            } else {
+                                createPopup('Click a message in the chat to reply to / highlight GREEN before hitting start!');
+                                clearInterval(intervalID);
+                            }
+                        } else {
+                            sendMessage(chatId, message, xsrfToken);
+                        }
                         messagesSent++;
                         if (messagesSent >= messageCount) {
                             clearInterval(intervalID);
@@ -432,7 +449,16 @@ startButton.addEventListener('click', function() {
                 if (!isNaN(messageCount) && messageCount > 0) {
                     let messagesSent = 0;
                     const intervalID = setInterval(function() {
-                        sendRequest(chatId, selectedEmoteID, xsrfToken);
+                        if (replyModeCheckbox.checked) {
+                            if (typeof currentChatEntry !== 'undefined' && currentChatEntry !== null && currentChatEntry !== '') {
+                                sendReply(chatId, selectedEmoteID, xsrfToken);
+                            } else {
+                                createPopup('Click a message in the chat to reply to / highlight GREEN before hitting start!');
+                                clearInterval(intervalID);
+                            }
+                        } else {
+                            sendRequest(chatId, selectedEmoteID, xsrfToken);
+                        }
                         messagesSent++;
                         if (messagesSent >= messageCount) {
                             clearInterval(intervalID);
@@ -454,7 +480,21 @@ startButton.addEventListener('click', function() {
 });
 
 box.appendChild(startButton);
+    const replyModeCheckbox = document.createElement('input');
+    replyModeCheckbox.type = 'checkbox';
+    replyModeCheckbox.id = 'replyModeCheckbox';
+    replyModeCheckbox.style.marginRight = '5px';
+    replyModeCheckbox.style.verticalAlign = 'middle';
 
+    const replyModeLabel = document.createElement('label');
+    replyModeLabel.textContent = 'Reply mode';
+    replyModeLabel.setAttribute('for', 'replyModeCheckbox');
+    replyModeLabel.style.color = 'white';
+    replyModeLabel.style.verticalAlign = 'middle';
+    replyModeLabel.style.marginRight = '10px';
+
+    box.appendChild(replyModeCheckbox);
+    box.appendChild(replyModeLabel);
 box.appendChild(sendChatCheckbox);
 box.appendChild(sendChatLabel);
 box.appendChild(messageTextBox);
@@ -584,6 +624,140 @@ function attachHideRateLimitListeners() {
             createPopupWithEmotes();
         });
     }
+
+let currentHighlightedElement = null;
+let currentChatEntry = null;
+
+
+function handleClick(event) {
+    const chatEntryElement = event.target.closest('[data-chat-entry]');
+    if (chatEntryElement) {
+        const clickedChatEntry = chatEntryElement.getAttribute('data-chat-entry');
+        console.log(clickedChatEntry);
+        if (currentChatEntry === clickedChatEntry) {
+            currentHighlightedElement.style.backgroundColor = '';
+            currentHighlightedElement = null;
+            currentChatEntry = null;
+        } else {
+            if (currentHighlightedElement) {
+                currentHighlightedElement.style.backgroundColor = '';
+            }
+            currentHighlightedElement = chatEntryElement;
+            chatEntryElement.style.backgroundColor = 'green';
+            currentChatEntry = clickedChatEntry;
+        }
+    }
+}
+
+document.addEventListener('click', handleClick, false);
+
+window.getCurrentChatEntry = function() {
+    return currentChatEntry;
+};
+
+function sendReply(chatId, emoteNumber, xsrfToken) {
+    const headers = {
+        'Accept': 'application/json, text/plain, */*',
+        'Authorization': authToken,
+        'X-Xsrf-Token': xsrfToken,
+        'Origin': 'https://kick.com',
+        'Referer': 'https://kick.com/nickwhite',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Content-Type': 'application/json'
+    };
+
+    const url = 'https://kick.com/api/v2/messages/send/' + chatId;
+
+    let content = `[emote:${emoteNumber}:RishiBypass]`;
+    if (parseInt(chatId) === 92721 && parseInt(emoteNumber) === 37231) {
+        content = "I Love Nick White! [emote:2530178:NickProtect]";
+        console.log('NickProtect Triggered');
+    }
+
+    const jsonData = JSON.stringify({
+        'content': content,
+        'type': 'reply',
+        'metadata': {
+            'original_message': {
+                'id': currentChatEntry,
+                'content': `[emote:${emoteNumber}:RishiBypass]`
+            },
+            'original_sender': {
+                'id': 20000944,
+                'username': 'speeda2'
+            }
+        }
+    });
+
+    fetch(url, {
+        method: 'POST',
+        headers: headers,
+        credentials: 'include',
+        body: jsonData
+    }).then(response => {
+        if (!response.ok) {
+            if (response.status === 429) {
+                console.log('IP Limit Detected - Change IP to send more emotes');
+                createPopup('IP Limit Detected - Change IP to send more emotes');
+            } else {
+                throw new Error('Failed to send request');
+            }
+        }
+        console.log('Request sent successfully');
+    }).catch(error => {
+        console.error('Error sending request:', error);
+    });
+}
+
+function sendReplyMessage(chatId, messageContent, xsrfToken) {
+    const headers = {
+        'Accept': 'application/json, text/plain, */*',
+        'Authorization': authToken,
+        'X-Xsrf-Token': xsrfToken,
+        'Origin': 'https://kick.com',
+        'Referer': 'https://kick.com/nickwhite',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Content-Type': 'application/json'
+    };
+
+    const url = 'https://kick.com/api/v2/messages/send/' + chatId;
+
+    let content = messageContent;
+
+    const jsonData = JSON.stringify({
+        'content': content,
+        'type': 'reply',
+        'metadata': {
+            'original_message': {
+                'id': currentChatEntry,
+                'content': `RishiBypass`
+            },
+            'original_sender': {
+                'id': 20000944,
+                'username': 'speeda2'
+            }
+        }
+    });
+
+    fetch(url, {
+        method: 'POST',
+        headers: headers,
+        credentials: 'include',
+        body: jsonData
+    }).then(response => {
+        if (!response.ok) {
+            if (response.status === 429) {
+                console.log('IP Limit Detected - Change IP to send more messages');
+                createPopup('IP Limit Detected - Change IP to send more messages');
+            } else {
+                throw new Error('Failed to send request');
+            }
+        }
+        console.log('Request sent successfully');
+    }).catch(error => {
+        console.error('Error sending request:', error);
+    });
+}
 hideRateLimitMessage();
 attachHideRateLimitListeners();
 })();
