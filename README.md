@@ -5,8 +5,11 @@
    * Firefox: [Tampermonkey][firefox_tampermonkey], or [Violentmonkey][firefox_violentmonkey]  
    * Brave: [Violentmonkey][chrome_violentmonkey] or [Tampermonkey][chrome_tampermonkey]
    * Edge: [Tampermonkey][edge_tampermonkey]  
-   * Safari: ~[Tampermonkey][safari_tampermonkey]~ 
-    
+   * Safari: ~[Tampermonkey][safari_tampermonkey]~
+
+2. Install KickAssist
+[KickAssist][kickassist_link]
+
 1. Install:  
   [![][greasyfork_icon]][greasyfork_url]
 2. Refresh and have fun!
@@ -24,7 +27,7 @@ Using third-party scripts means you trust that the script’s developer hasn’t
   [firefox_violentmonkey]: https://addons.mozilla.org/firefox/addon/violentmonkey/
   [safari_tampermonkey]: https://github.com/victornpb/undiscord/issues/91#issuecomment-654514364
   [edge_tampermonkey]: https://microsoftedge.microsoft.com/addons/detail/tampermonkey/iikmkjmpaadaobahmlepeloendndfphd
-
+  [kickassist_link]: https://chromewebstore.google.com/detail/kick-assist/mhofahpppljielibicgjjjddhnkmhpml?hl=en
 <!-- Download links -->
   [greasyfork_url]: <https://greasyfork.org/en/scripts/493803-ratelimit-bypass> "Get from GreasyFork"
 
