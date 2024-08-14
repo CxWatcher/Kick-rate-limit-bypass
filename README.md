@@ -7,8 +7,7 @@
    * Edge: [Tampermonkey][edge_tampermonkey]  
    * Safari: ~[Tampermonkey][safari_tampermonkey]~
 
-2. Install KickAssist
-[KickAssist][kickassist_link]
+2. Install [KickAssist][kickassist_link]
 
 1. Install:  
   [![][greasyfork_icon]][greasyfork_url]
